@@ -173,6 +173,8 @@ with tf.compat.v1.Session(config=config) as sess:
     test_generator.reset()
     y_pred = model.predict(test_generator)
     y_pred = np.argmax(y_pred, axis=1)
+    y_prob = model.predict(test_generator)
+
     y_true = test_generator.classes
     precision = precision_score(y_true, y_pred, average='macro')
     recall = recall_score(y_true, y_pred, average='macro')
