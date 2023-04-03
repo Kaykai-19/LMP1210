@@ -111,16 +111,16 @@ with tf.compat.v1.Session(config=config) as sess:
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
     # freeze some layers in the base model
-    for layer in inceptionv3.layers[:100]:
+    for layer in inceptionv3.layers[:50]:
         layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[100:]:
+    for layer in inceptionv3.layers[50:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
     def lr_schedule(epoch, lr):
-        if epoch < 3:
+        if epoch < 10:
             return lr
         else:
             return 0.0001
@@ -129,13 +129,13 @@ with tf.compat.v1.Session(config=config) as sess:
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=10, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=30, verbose=1)
 
     # Compile the model and train it
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     history=model.fit(
         train_generator,
-        epochs=30,
+        epochs=80,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
@@ -143,14 +143,17 @@ with tf.compat.v1.Session(config=config) as sess:
 
     model.summary()
 
-    # Plot the training and validation loss
+    # Plot the training and validation Loss
+    plt.ioff()
+
     plt.plot(history.history['loss'], label='Training loss')
     plt.plot(history.history['val_loss'], label='Validation loss')
     plt.title('Training and validation loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
-    plt.save()
+    plt.savefig("Loss.png")
+    plt.close()
 
     # Plot the training and validation accuracy
     plt.plot(history.history['accuracy'], label='Training accuracy')
@@ -159,7 +162,8 @@ with tf.compat.v1.Session(config=config) as sess:
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.legend()
-    plt.save()
+    plt.savefig("Acc.png")
+    plt.close()
 
     # Evaluate the model on the testing set
     test_loss, test_acc = model.evaluate(test_generator, verbose=2)
@@ -203,14 +207,13 @@ with tf.compat.v1.Session(config=config) as sess:
     plt.ylabel('True Positive Rate')
     plt.title('Receiver operating characteristic')
     plt.legend(loc="lower right")
-    plt.show()
+    plt.savefig("ROC_Curve")
+    plt.close()
 
 
     # Evaluate the model on the testing set
     test_loss, test_acc = model.evaluate(test_generator, verbose=2)
     print(f"Test accuracy: {test_acc}\n")
-
-
 
 
     save_model(model, 'inceptionv3.h5')
