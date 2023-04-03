@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.metrics import precision_score, recall_score, f1_score
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.inception_v3 import InceptionV3
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.keras.layers import Dense, GlobalMaxPooling2D
 from tensorflow.keras.models import save_model
 from tensorflow.keras.models import Model
 from tensorflow.keras.callbacks import LearningRateScheduler
@@ -14,6 +14,8 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
+from efficientnet.tfkeras import EfficientNetB0, preprocess_input
+
 
 
 config = tf.compat.v1.ConfigProto()
@@ -25,31 +27,33 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Define data generators for training, validation, and testing sets
     train_datagen = ImageDataGenerator(
-        rescale=1./255,
+        preprocessing_function=preprocess_input,
         shear_range=0.2,
         zoom_range=0.2,
         horizontal_flip=True
     )
 
     val_datagen = ImageDataGenerator(
-        rescale=1./255
+        preprocessing_function=preprocess_input,
+
     )
 
     test_datagen = ImageDataGenerator(
-        rescale=1./255
+        preprocessing_function=preprocess_input,
+
     )
 
     # Define batch size and image size
     batch_size = 128
 
     # Define data directories
-    train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
-    val_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/val"
-    test_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/test"
+    # train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
+    # val_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/val"
+    # test_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/test"
 
-    # train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/train"
-    # val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/val"
-    # test_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/test"
+    train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/train"
+    val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/val"
+    test_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/test"
 
     # train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/version_2.0/archive/train"
     # val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/version_2.0/archive/val"
@@ -88,20 +92,21 @@ with tf.compat.v1.Session(config=config) as sess:
     # upsample the files
 
 
-    # Load the InceptionV3 model
-    inceptionv3 = InceptionV3(include_top=False, weights='imagenet', input_shape=(img_size[0], img_size[1], 3))
+    # Load the EfficientNet model
+    #inceptionv3 = InceptionV3(include_top=False, weights='imagenet', input_shape=(img_size[0], img_size[1], 3))
+    base_model = EfficientNetB0(include_top=False, weights='imagenet', input_shape=(img_size[0], img_size[1], 3))
 
     # Freeze the layers in InceptionV3
     for layer in inceptionv3.layers:
         layer.trainable = False
 
     # Add a global spatial average pooling layer
-    x = inceptionv3.output
-    x = GlobalAveragePooling2D()(x)
+    x = base_model.output
+    x = GlobalMaxPooling2D()(x)
 
     # Add a fully connected layer
     #x = Dense(1024, activation='relu')(x)
-    x = Dense(512, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
+    x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
 
 
     # Add a classification layer
@@ -129,13 +134,13 @@ with tf.compat.v1.Session(config=config) as sess:
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=30, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=20, verbose=1)
 
     # Compile the model and train it
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy',tf.keras.metrics.AUC()])
     history=model.fit(
         train_generator,
-        epochs=80,
+        epochs=50,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
@@ -173,9 +178,8 @@ with tf.compat.v1.Session(config=config) as sess:
     test_generator.reset()
     y_pred = model.predict(test_generator)
     y_pred = np.argmax(y_pred, axis=1)
-    y_prob = model.predict(test_generator)
-
     y_true = test_generator.classes
+    y_prob = model.predict(test_generator)
     precision = precision_score(y_true, y_pred, average='macro')
     recall = recall_score(y_true, y_pred, average='macro')
     f1 = f1_score(y_true, y_pred, average='macro')
@@ -185,8 +189,8 @@ with tf.compat.v1.Session(config=config) as sess:
 
 
 # Calculate ROC curve and AUC
-    auc = roc_auc_score(y_true, y_prob, multi_class='ovr')
-    print(f"AUC: {auc}\n")
+    my_auc = roc_auc_score(y_true, y_prob, multi_class='ovr')
+    print(f"AUC: {my_auc}\n")
 
 # Plot ROC curve
     fpr = dict()
@@ -199,6 +203,7 @@ with tf.compat.v1.Session(config=config) as sess:
     plt.figure()
     lw = 2
     colors = ['aqua', 'darkorange', 'cornflowerblue', 'deeppink', 'navy']
+
     for i, color in zip(range(test_generator.num_classes), colors):
         plt.plot(fpr[i], tpr[i], color=color, lw=lw, label='ROC curve of class {0} (area = {1:0.2f})'
               ''.format(i+1, roc_auc[i]))
@@ -218,4 +223,9 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'inceptionv3.h5')
+    # Evaluate the model on the testing set
+    test_loss, test_acc = model.evaluate(test_generator, verbose=2)
+    print(f"Test accuracy: {test_acc}\n")
+
+
+    save_model(model, 'efficientNet_local.h5')
