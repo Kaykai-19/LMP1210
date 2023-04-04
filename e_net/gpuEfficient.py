@@ -16,6 +16,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from efficientnet.tfkeras import EfficientNetB0, preprocess_input
 
+# has 165 layers 
 
 
 config = tf.compat.v1.ConfigProto()
@@ -140,7 +141,7 @@ with tf.compat.v1.Session(config=config) as sess:
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy',tf.keras.metrics.AUC()])
     history=model.fit(
         train_generator,
-        epochs=50,
+        epochs=10,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]

@@ -184,9 +184,9 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"F1-score: {f1:.3f}")
 
 
-# Calculate ROC curve and AUC
-    auc = roc_auc_score(y_true, y_prob, multi_class='ovr')
-    print(f"AUC: {auc}\n")
+## Calculate ROC curve and AUC
+    my_auc = roc_auc_score(y_true, y_prob, multi_class='ovr')
+    print(f"AUC: {my_auc}\n")
 
 # Plot ROC curve
     fpr = dict()
@@ -199,6 +199,7 @@ with tf.compat.v1.Session(config=config) as sess:
     plt.figure()
     lw = 2
     colors = ['aqua', 'darkorange', 'cornflowerblue', 'deeppink', 'navy']
+
     for i, color in zip(range(test_generator.num_classes), colors):
         plt.plot(fpr[i], tpr[i], color=color, lw=lw, label='ROC curve of class {0} (area = {1:0.2f})'
               ''.format(i+1, roc_auc[i]))
