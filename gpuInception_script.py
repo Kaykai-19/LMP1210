@@ -168,7 +168,7 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Evaluate the model on the testing set
     test_loss, test_acc = model.evaluate(test_generator, verbose=2)
-    print(f"Test accuracy: {test_acc}\n")
+
 
     # Calculate precision, recall, and F1-score
     test_generator.reset()
@@ -221,3 +221,4 @@ with tf.compat.v1.Session(config=config) as sess:
 
 
     save_model(model, 'inceptionv3.h5')
+    print(f"this is the batch size {batch_size}")
