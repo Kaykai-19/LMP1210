@@ -135,7 +135,7 @@ with tf.compat.v1.Session(config=config) as sess:
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     history=model.fit(
         train_generator,
-        epochs=80,
+        epochs=2,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
