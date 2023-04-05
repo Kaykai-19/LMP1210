@@ -112,11 +112,11 @@ with tf.compat.v1.Session(config=config) as sess:
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
     # freeze some layers in the base model
-    for layer in inceptionv3.layers[:100]:
+    for layer in inceptionv3.layers[:50]:
         layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[100:]:
+    for layer in inceptionv3.layers[50:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
@@ -130,7 +130,7 @@ with tf.compat.v1.Session(config=config) as sess:
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=30, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=20, verbose=1)
 
     # Compile the model and train it
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
