@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
+from keras.layers import Dropout
 from sklearn.metrics import precision_score, recall_score, f1_score
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.inception_v3 import InceptionV3
@@ -102,9 +103,11 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Add a fully connected layer
     #x = Dense(1024, activation='tanh')(x)
-    x = Dense(512, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
-
-
+    x = Dense(1024, activation='tanh', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
+    x = Dropout(0.5)(x)
+    # adding another layer
+    x = Dense(512, activation='relu')(x)
+    x = Dropout(0.5)(x)
     # Add a classification layer
     predictions = Dense(4, activation='softmax')(x)
 
