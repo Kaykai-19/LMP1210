@@ -101,7 +101,7 @@ with tf.compat.v1.Session(config=config) as sess:
     x = GlobalAveragePooling2D()(x)
 
     # Add a fully connected layer
-    #x = Dense(1024, activation='relu')(x)
+    #x = Dense(1024, activation='tanh')(x)
     x = Dense(512, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
 
 
@@ -112,11 +112,11 @@ with tf.compat.v1.Session(config=config) as sess:
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
     # freeze some layers in the base model
-    for layer in inceptionv3.layers[:50]:
+    for layer in inceptionv3.layers[:100]:
         layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[50:]:
+    for layer in inceptionv3.layers[100:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
@@ -136,7 +136,7 @@ with tf.compat.v1.Session(config=config) as sess:
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     history=model.fit(
         train_generator,
-        epochs=2,
+        epochs=50,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
