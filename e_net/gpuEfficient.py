@@ -172,7 +172,9 @@ with tf.compat.v1.Session(config=config) as sess:
     plt.close()
 
     # Evaluate the model on the testing set
-    test_loss, test_acc = model.evaluate(test_generator, verbose=2)
+    test_result = model.evaluate(test_generator, verbose=2)
+    test_loss = test_result[0]
+    test_acc = test_result[1]
     print(f"Test accuracy: {test_acc}\n")
 
     # Calculate precision, recall, and F1-score
@@ -220,12 +222,9 @@ with tf.compat.v1.Session(config=config) as sess:
 
 
     # Evaluate the model on the testing set
-    test_loss, test_acc = model.evaluate(test_generator, verbose=2)
-    print(f"Test accuracy: {test_acc}\n")
-
-
-    # Evaluate the model on the testing set
-    test_loss, test_acc = model.evaluate(test_generator, verbose=2)
+    test_result = model.evaluate(test_generator, verbose=2)
+    test_loss = test_result[0]
+    test_acc = test_result[1]
     print(f"Test accuracy: {test_acc}\n")
 
 
