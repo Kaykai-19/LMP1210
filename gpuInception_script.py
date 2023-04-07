@@ -223,5 +223,5 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'inceptionv3.h5')
+    save_model(model, 'model5_inceptionv3.h5')
     print(f"this is the batch size {batch_size}")
