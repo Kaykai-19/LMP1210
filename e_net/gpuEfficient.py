@@ -5,7 +5,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
 from sklearn.metrics import precision_score, recall_score, f1_score
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications.inception_v3 import InceptionV3
 from tensorflow.keras.layers import Dense, GlobalMaxPooling2D
 from tensorflow.keras.models import save_model
 from tensorflow.keras.models import Model
@@ -98,7 +97,7 @@ with tf.compat.v1.Session(config=config) as sess:
     base_model = EfficientNetB0(include_top=False, weights='imagenet', input_shape=(img_size[0], img_size[1], 3))
 
     # Freeze the layers in InceptionV3
-    for layer in inceptionv3.layers:
+    for layer in base_model.layers:
         layer.trainable = False
 
     # Add a global spatial average pooling layer
@@ -114,14 +113,14 @@ with tf.compat.v1.Session(config=config) as sess:
     predictions = Dense(4, activation='softmax')(x)
 
     # Define the model
-    model = Model(inputs=inceptionv3.input, outputs=predictions)
+    model = Model(inputs=base_model.input, outputs=predictions)
 
     # freeze some layers in the base model
-    for layer in inceptionv3.layers[:100]:
+    for layer in base_model.layers[:100]:
         layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[100:]:
+    for layer in base_model.layers[100:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
