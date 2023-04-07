@@ -11,6 +11,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.callbacks import LearningRateScheduler
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
+from sklearn.metrics import auc
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from efficientnet.tfkeras import EfficientNetB0, preprocess_input
