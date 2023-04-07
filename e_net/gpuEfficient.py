@@ -16,7 +16,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve
 from efficientnet.tfkeras import EfficientNetB0, preprocess_input
 
-# has 165 layers 
+# has 165 layers
 
 
 config = tf.compat.v1.ConfigProto()
@@ -48,13 +48,13 @@ with tf.compat.v1.Session(config=config) as sess:
     batch_size = 128
 
     # Define data directories
-    # train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
-    # val_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/val"
-    # test_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/test"
+    train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
+    val_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/val"
+    test_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/test"
 
-    train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/train"
-    val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/val"
-    test_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/test"
+    # train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/train"
+    # val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/val"
+    # test_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/test"
 
     # train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/version_2.0/archive/train"
     # val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/version_2.0/archive/val"
@@ -117,11 +117,11 @@ with tf.compat.v1.Session(config=config) as sess:
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
     # freeze some layers in the base model
-    for layer in inceptionv3.layers[:50]:
+    for layer in inceptionv3.layers[:100]:
         layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[50:]:
+    for layer in inceptionv3.layers[100:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
@@ -129,19 +129,19 @@ with tf.compat.v1.Session(config=config) as sess:
         if epoch < 10:
             return lr
         else:
-            return 0.0001
+            return 0.01
 
     # Create a callback to update the learning rate after each epoch
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=20, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=30, verbose=1)
 
     # Compile the model and train it
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy',tf.keras.metrics.AUC()])
     history=model.fit(
         train_generator,
-        epochs=10,
+        epochs=80,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
