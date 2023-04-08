@@ -45,7 +45,7 @@ with tf.compat.v1.Session(config=config) as sess:
     )
 
     # Define batch size and image size
-    batch_size = 128
+    batch_size = 64
 
     # Define data directories
     train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
@@ -158,7 +158,7 @@ with tf.compat.v1.Session(config=config) as sess:
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig("Loss.png")
+    plt.savefig("E_Loss.png")
     plt.close()
 
     # Plot the training and validation accuracy
@@ -168,7 +168,7 @@ with tf.compat.v1.Session(config=config) as sess:
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.legend()
-    plt.savefig("Acc.png")
+    plt.savefig("E_Acc.png")
     plt.close()
 
     # Evaluate the model on the testing set
@@ -228,4 +228,4 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'efficientNet_local.h5')
+    save_model(model, 'model15_efficient.h5')
