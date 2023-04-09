@@ -100,17 +100,17 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Add a global spatial average pooling layer
     x = inceptionv3.output
-    x = Conv2D(256, (3, 3), activation='tanh')(x)
+    x = Conv2D(256, (3, 3), activation='relu')(x)
     x = GlobalAveragePooling2D()(x)
 
 
     # Add a fully connected layer
     #x = Dense(1024, activation='tanh')(x)
-    x = Dense(1024, activation='tanh', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
+    x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
     x = Dropout(0.2)(x)
     x = Flatten()(x)
     # adding another layer
-    x = Dense(1024, activation='tanh')(x)
+    x = Dense(1024, activation='relu')(x)
     x = Dropout(0.2)(x)
 
     # Add a classification layer
