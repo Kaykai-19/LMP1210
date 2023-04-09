@@ -4,6 +4,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
 from keras.layers import Dropout
+from tensorflow.keras.layers import Input, Conv2D, Flatten
 from sklearn.metrics import precision_score, recall_score, f1_score
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications.inception_v3 import InceptionV3
@@ -99,27 +100,31 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Add a global spatial average pooling layer
     x = inceptionv3.output
+    x = Conv2D(256, (3, 3), activation='tanh')(x)
     x = GlobalAveragePooling2D()(x)
+
 
     # Add a fully connected layer
     #x = Dense(1024, activation='tanh')(x)
     x = Dense(1024, activation='tanh', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
     x = Dropout(0.2)(x)
+    x = Flatten()(x)
     # adding another layer
     x = Dense(1024, activation='tanh')(x)
     x = Dropout(0.2)(x)
+
     # Add a classification layer
     predictions = Dense(4, activation='softmax')(x)
 
     # Define the model
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
-    # freeze some layers in the base model
-    # for layer in inceptionv3.layers[:75]:
-    #     layer.trainable = False
+    freeze some layers in the base model
+    for layer in inceptionv3.layers[:75]:
+        layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[:]:
+    for layer in inceptionv3.layers[75:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
@@ -133,13 +138,13 @@ with tf.compat.v1.Session(config=config) as sess:
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=20, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=50, verbose=1)
 
     # Compile the model and train it
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     history=model.fit(
         train_generator,
-        epochs=100,
+        epochs=200,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
@@ -223,6 +228,6 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'model32.h5')
-    print("model 32")
+    save_model(model, 'model36.h5')
+    print("model 36")
     print(f"this is the batch size {batch_size}")
