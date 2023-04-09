@@ -42,7 +42,7 @@ with tf.compat.v1.Session(config=config) as sess:
     )
 
     # Define batch size and image size
-    batch_size = 64
+    batch_size = 128
 
     # Define data directories
     train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
@@ -115,11 +115,11 @@ with tf.compat.v1.Session(config=config) as sess:
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
     # freeze some layers in the base model
-    for layer in inceptionv3.layers[:100]:
+    for layer in inceptionv3.layers[:75]:
         layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[100:]:
+    for layer in inceptionv3.layers[75:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
@@ -127,19 +127,19 @@ with tf.compat.v1.Session(config=config) as sess:
         if epoch < 10:
             return lr
         else:
-            return 0.1
+            return 0.001
 
     # Create a callback to update the learning rate after each epoch
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=10, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=70, verbose=1)
 
     # Compile the model and train it
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     history=model.fit(
         train_generator,
-        epochs=50,
+        epochs=200,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
