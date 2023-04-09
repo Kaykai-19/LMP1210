@@ -103,10 +103,10 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Add a fully connected layer
     #x = Dense(1024, activation='tanh')(x)
-    x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
+    x = Dense(1024, activation='tanh', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
     x = Dropout(0.2)(x)
     # adding another layer
-    x = Dense(1024, activation='relu')(x)
+    x = Dense(1024, activation='tanh')(x)
     x = Dropout(0.2)(x)
     # Add a classification layer
     predictions = Dense(4, activation='softmax')(x)
@@ -115,11 +115,11 @@ with tf.compat.v1.Session(config=config) as sess:
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
     # freeze some layers in the base model
-    for layer in inceptionv3.layers[:75]:
-        layer.trainable = False
+    # for layer in inceptionv3.layers[:75]:
+    #     layer.trainable = False
 
     # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[75:]:
+    for layer in inceptionv3.layers[:]:
         layer.trainable = True
 
     # Define a learning rate scheduler function
@@ -133,13 +133,13 @@ with tf.compat.v1.Session(config=config) as sess:
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=70, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=20, verbose=1)
 
     # Compile the model and train it
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     history=model.fit(
         train_generator,
-        epochs=200,
+        epochs=100,
         validation_data=val_generator,
         verbose=1,
         callbacks=[lr_scheduler, early_stop]
@@ -223,5 +223,6 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'model25_inceptionv3.h5')
+    save_model(model, 'model32.h5')
+    print("model 32")
     print(f"this is the batch size {batch_size}")
