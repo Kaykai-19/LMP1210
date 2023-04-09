@@ -103,10 +103,10 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Add a fully connected layer
     #x = Dense(1024, activation='tanh')(x)
-    x = Dense(512, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
+    x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
     x = Dropout(0.2)(x)
     # adding another layer
-    x = Dense(512, activation='relu')(x)
+    x = Dense(1024, activation='relu')(x)
     x = Dropout(0.2)(x)
     # Add a classification layer
     predictions = Dense(4, activation='softmax')(x)
@@ -127,7 +127,7 @@ with tf.compat.v1.Session(config=config) as sess:
         if epoch < 10:
             return lr
         else:
-            return 0.0001
+            return 0.1
 
     # Create a callback to update the learning rate after each epoch
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
@@ -223,5 +223,5 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'model16_inceptionv3.h5')
+    save_model(model, 'model25_inceptionv3.h5')
     print(f"this is the batch size {batch_size}")
