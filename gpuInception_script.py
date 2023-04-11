@@ -43,7 +43,7 @@ with tf.compat.v1.Session(config=config) as sess:
     )
 
     # Define batch size and image size
-    batch_size = 128
+    batch_size = 32
 
     # Define data directories
     train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
@@ -96,7 +96,7 @@ with tf.compat.v1.Session(config=config) as sess:
 
     # Freeze the layers in InceptionV3
     for layer in inceptionv3.layers:
-        layer.trainable = False
+        layer.trainable = True
 
     # Add a global spatial average pooling layer
     x = inceptionv3.output
@@ -105,12 +105,12 @@ with tf.compat.v1.Session(config=config) as sess:
 
 
     # Add a fully connected layer
-    #x = Dense(1024, activation='tanh')(x)
+    x = Dense(1024, activation='relu')(x)
     x = Dense(1024, activation='relu', kernel_regularizer=l2(0.01), bias_regularizer=l2(0.01))(x)
-    x = Dropout(0.2)(x)
+    x = Dropout(0.4)(x)
     x = Flatten()(x)
     # adding another layer
-    x = Dense(1024, activation='relu')(x)
+    x = Dense(8192, activation='relu')(x)
     x = Dropout(0.2)(x)
 
     # Add a classification layer
@@ -119,13 +119,13 @@ with tf.compat.v1.Session(config=config) as sess:
     # Define the model
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
-    freeze some layers in the base model
-    for layer in inceptionv3.layers[:75]:
-        layer.trainable = False
-
-    # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[75:]:
-        layer.trainable = True
+    # # freeze some layers in the base model
+    # for layer in inceptionv3.layers[:75]:
+    #     layer.trainable = False
+    #
+    # # unfreeze the rest of the layers
+    # for layer in inceptionv3.layers[75:]:
+    #     layer.trainable = True
 
     # Define a learning rate scheduler function
     def lr_schedule(epoch, lr):
@@ -138,7 +138,7 @@ with tf.compat.v1.Session(config=config) as sess:
     lr_scheduler = LearningRateScheduler(lr_schedule, verbose=1)
 
     # Define the early stopping callback
-    early_stop = EarlyStopping(monitor='val_loss', patience=50, verbose=1)
+    early_stop = EarlyStopping(monitor='val_loss', patience=30, verbose=1)
 
     # Compile the model and train it
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -193,7 +193,7 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"F1-score: {f1:.3f}")
 
 
-## Calculate ROC curve and AUC
+# Calculate ROC curve and AUC
     my_auc = roc_auc_score(y_true, y_prob, multi_class='ovr')
     print(f"AUC: {my_auc}\n")
 
@@ -228,6 +228,6 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'model36.h5')
-    print("model 36")
+    save_model(model, 'model46.h5')
+    print("model 46")
     print(f"this is the batch size {batch_size}")
