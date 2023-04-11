@@ -119,14 +119,6 @@ with tf.compat.v1.Session(config=config) as sess:
     # Define the model
     model = Model(inputs=inceptionv3.input, outputs=predictions)
 
-    freeze some layers in the base model
-    for layer in inceptionv3.layers[:75]:
-        layer.trainable = False
-
-    # unfreeze the rest of the layers
-    for layer in inceptionv3.layers[75:]:
-        layer.trainable = True
-
     # Define a learning rate scheduler function
     def lr_schedule(epoch, lr):
         if epoch < 10:
@@ -228,6 +220,6 @@ with tf.compat.v1.Session(config=config) as sess:
     print(f"Test accuracy: {test_acc}\n")
 
 
-    save_model(model, 'model36.h5')
-    print("model 36")
+    save_model(model, 'model46.h5')
+    print("model 46")
     print(f"this is the batch size {batch_size}")
