@@ -2,7 +2,7 @@
 #SBATCH --nodes=1
 #SBATCH --mem=16G
 #SBATCH --cpus-per-task=16
-#SBATCH --time=4:00:00
+#SBATCH --time=6:00:00
 #SBATCH --job-name="inception_test"
 #SBATCH --gres=gpu:4
 #SBATCH --account=def-wanglab-ab

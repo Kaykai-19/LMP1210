@@ -1,5 +1,5 @@
 #adadelta inceptionv3
-from tensorflow.keras.optimizers.legacy import Adadelta
+from tensorflow.keras.optimizers import Adadelta
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
@@ -47,13 +47,13 @@ with tf.compat.v1.Session(config=config) as sess:
     batch_size = 256
 
     # Define data directories
-    train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/train"
-    val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/val"
-    test_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/test"
+    # train_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/train"
+    # val_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/val"
+    # test_dir = "/Users/charles/Desktop/MS-1/LMP1210/Group_Project/KOA_Severity_Data/test"
 
-    # train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
-    # val_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/val"
-    # test_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/test"
+    train_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/train"
+    val_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/val"
+    test_dir = "/home/ikeade/projects/rrg-wanglab/ikeade/KOA_Severity_Data/test"
 
     # Define data generators for training, validation, and testing sets
     train_generator = train_datagen.flow_from_directory(
